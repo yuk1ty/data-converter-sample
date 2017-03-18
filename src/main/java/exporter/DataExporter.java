@@ -16,11 +16,48 @@ package exporter;
 * limitations under the License.
 */
 
-import java.util.Map;
+import com.google.common.collect.Multimap;
+import com.univocity.parsers.tsv.TsvWriter;
+import com.univocity.parsers.tsv.TsvWriterSettings;
+
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.Collection;
+import java.util.function.BiConsumer;
 
 public class DataExporter {
 
-    public void flush(Map<Long, Long> sources) {
+    private final String exportDirectoryPath;
 
+    private final String charsetName;
+
+    public DataExporter(String exportDirectoryPath, String charsetName) {
+        this.exportDirectoryPath = exportDirectoryPath;
+        this.charsetName = charsetName;
+    }
+
+    public void flush(Multimap<Path, Long> results) {
+        try (BufferedWriter bw = Files.newBufferedWriter(generateFilePathWithTimestamp(), Charset.forName(charsetName), StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+            TsvWriter writer = new TsvWriter(bw, new TsvWriterSettings());
+
+            results.asMap().forEach(flushRow(writer));
+
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private BiConsumer<Path, Collection<Long>> flushRow(TsvWriter writer) {
+        return (path, scenarioIds) -> scenarioIds.forEach(scenarioId -> writer.writeRow(path, scenarioId));
+    }
+
+    private Path generateFilePathWithTimestamp() {
+        return Paths.get(exportDirectoryPath + "//result_" + System.currentTimeMillis() + ".tsv");
     }
 }

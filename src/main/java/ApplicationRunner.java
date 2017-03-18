@@ -1,5 +1,7 @@
 import config.Configuration;
+import exporter.DataExporter;
 import loader.ScenarioDataLoader;
+import parser.ScenarioDataParser;
 
 public class ApplicationRunner {
 
@@ -9,6 +11,9 @@ public class ApplicationRunner {
     }
 
     private void run() {
-        ScenarioDataLoader loader = new ScenarioDataLoader(Configuration.path, Configuration.charsetName);
+        ScenarioDataLoader loader = new ScenarioDataLoader(Configuration.rootPath, Configuration.charsetName);
+        ScenarioDataParser parser = new ScenarioDataParser();
+        DataExporter exporter = new DataExporter(Configuration.exportDirectoryPath, Configuration.charsetName);
+        exporter.flush(parser.parse(loader.load()));
     }
 }

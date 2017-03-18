@@ -18,7 +18,11 @@ package config;
 
 public final class Configuration {
 
-    public static final String path = "";
+    /** Github公開用に、パスは空にしてあります */
+    public static final String rootPath = "";
+
+    /** Github公開用に、パスは空にしてあります */
+    public static final String exportDirectoryPath = "";
 
     public static final String charsetName = "UTF-8";
 

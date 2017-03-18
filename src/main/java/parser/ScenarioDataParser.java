@@ -16,12 +16,31 @@ package parser;
 * limitations under the License.
 */
 
-import java.util.Collections;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
+import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 public class ScenarioDataParser {
 
-    public List<Long[]> parse(List<String[]> sources) {
-        return Collections.emptyList();
+    public Multimap<Path, Long> parse(Map<Path, List<String[]>> sources) {
+        Multimap<Path, Long> results = ArrayListMultimap.create();
+
+        for (Map.Entry<Path, List<String[]>> entry : sources.entrySet()) {
+            projectResult(entry, results);
+        }
+
+        return results;
+    }
+
+    private void projectResult(Map.Entry<Path, List<String[]>> entry, Multimap<Path, Long> results) {
+        for (String[] columns : entry.getValue()) {
+            if (columns[1] == null) {
+                continue;
+            }
+            results.put(entry.getKey().getFileName(), Long.parseLong(columns[1]));
+        }
     }
 }
